@@ -1,19 +1,25 @@
 const SlackBot = require("slackbots");
-const fs = require('fs');
+//const fs = require('fs');
 const datos = require('./data/datos.json');
-
+const config = require('./config/config');
+const respuesta = require('./mensaje');
+const bcrypt = require('bcrypt');
+const express = require('express');
+const session = require('express-session');
+var app = express();
 let user = "";
 let listaUsuarios = [];
 
-var bot = new SlackBot({
-    token: "xoxb-441306192277-466081881904-fcO2YDRKnOFHO1DnLnjbkkwD",
-    name: "Mr. Test-Bot"
-});
+var bot = new SlackBot(config.bot);
+
 bot.on("start", function() {
+
+    app.use(session({ secret: '123456', resave: true, saveUninitialized: true }))
+
+    console.log(app.get('saveUninitialized'));
     let datosUsuarios = bot.getUsers();
     listaUsuarios = datosUsuarios._value.members;
     //console.log(listaUsuarios[0]);
-
 });
 
 bot.on("message", function(data) {
@@ -31,7 +37,7 @@ function validaUsuario(userID) {
     let index = listaUsuarios.findIndex(usuario => usuario.id === userID);
 
     if (index >= 0) {
-        user = listaUsuarios[index].name;
+        user = listaUsuarios[index];
         return true;
     } else if (userID != undefined) {
         console.log(index, userID);
@@ -49,53 +55,49 @@ function responder(mensajeRecibido) {
     } else {
         switch (mensajeRecibido) {
             case 'hola':
-                bot.postMessageToUser(user, 'Hola!, en que te puedo ayudar? :grin:');
+                bot.postMessageToUser(user.name, 'Hola!, en que te puedo ayudar? :grin:');
                 break;
             case 'como estas?':
-                bot.postMessageToUser(user, 'Mejor que tu');
+                bot.postMessageToUser(user.name, 'Mejor que tu');
                 break;
             default:
-                bot.postMessageToUser(user, 'No entendi lo que me pediste :thinking_face:');
+                bot.postMessageToUser(user.name, 'No entendi lo que me pediste :thinking_face:');
         }
     }
 }
 
 function BuscarJson(criteroBusqueda) {
-    let objetoDatos = datos; //leerArchivo();
-    //bot.postMessageToUser(user, objetoDatos);
+
     let mensaje = '';
-    switch (criteroBusqueda) {
+    let arregloMensaje = criteroBusqueda.split(' ');
+
+
+    switch (arregloMensaje[0]) {
         case 'esquemas':
-            mensaje = '*Esquemas:* \n';
-            let totalEsq = objetoDatos.Esquemas.length;
-            for (let i = 0; i < totalEsq; i++) {
-                mensaje += `${objetoDatos.Esquemas[i].nom} | ${objetoDatos.Esquemas[i].desc}\n`
-            }
-            bot.postMessageToUser(user, mensaje);
+            mensaje = respuesta.buscarEsquemas();
+            bot.postMessageToUser(user.name, mensaje);
             break;
         case 'servidores':
-            mensaje = '*Producción:* \n';
-            let totalServ = objetoDatos.Servidores.Produccion.length;
-            for (let i = 0; i < totalServ; i++) {
-                mensaje += `${objetoDatos.Servidores.Produccion[i].desc} | ${objetoDatos.Servidores.Produccion[i].ip}\n`
-            }
-            mensaje += '*QA:* \n';
-            totalServ = objetoDatos.Servidores.QA.length;
-            for (let i = 0; i < totalServ; i++) {
-                mensaje += `${objetoDatos.Servidores.QA[i].desc} | ${objetoDatos.Servidores.QA[i].ip}\n`
-            }
-            mensaje += '*Desarrollo:* \n';
-            totalServ = objetoDatos.Servidores.Desarrollo.length;
-            for (let i = 0; i < totalServ; i++) {
-                mensaje += `${objetoDatos.Servidores.Desarrollo[i].desc} | ${objetoDatos.Servidores.Desarrollo[i].ip}\n`
-            }
-            bot.postMessageToUser(user, mensaje)
+            mensaje = respuesta.buscarServidores();
+            bot.postMessageToUser(user.name, mensaje)
+            break;
+        case 'vdi':
+            mensaje = respuesta.buscarVDI();
+            bot.postMessageToUser(user.name, mensaje)
+            break;
+        case 'conexiones':
+            mensaje = respuesta.buscarConexiones();
+            bot.postMessageToUser(user.name, mensaje)
+            break;
+        case 'anexos':
+            mensaje = respuesta.buscarAnexos(arregloMensaje[1], arregloMensaje[2]);
+            bot.postMessageToUser(user.name, mensaje)
+            break;
+        case 'clave':
+            mensaje = respuesta.buscarClaves(user);
+            bot.postMessageToUser(user.name, mensaje)
             break;
         default:
-            bot.postMessageToUser(user, 'No pude encontrar lo que me pediste :disappointed:');
+            bot.postMessageToUser(user.name, 'No pude encontrar lo que me pediste :disappointed:');
     }
-}
-
-function leerArchivo() {
-    return JSON.parse(fs.readFile('./data/datos.json', 'utf8'));
 }

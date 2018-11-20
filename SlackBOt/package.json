@@ -10,6 +10,9 @@
   "license": "ISC",
   "dependencies": {
     "@slack/client": "^4.8.0",
+    "bcrypt": "^3.0.2",
+    "express": "^4.16.4",
+    "express-session": "^1.15.6",
     "slackbots": "^1.2.0"
   }
 }
