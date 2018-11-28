@@ -90,7 +90,7 @@ let buscarClaves = function(usuario) {
     if (index >= 0) { //El usuario Existe
         let totalCon = objetoDatos.Claves[index].claves.length;
         mensaje = `${usuario.real_name_normalized},  cual es tu contraseña?`;
-        let x = consultar(usuario, mensaje);
+        let x = await consultar(usuario, mensaje);
         console.log(x);
         /*   
         for (let i = 0; i < totalCon; i++) {
@@ -105,7 +105,7 @@ let buscarClaves = function(usuario) {
 }
 
 
-let consultar = (usuario, mensaje) => {
+let consultar = async(usuario, mensaje) => {
     bot.postMessageToUser(usuario.name, mensaje).then(function() {
         bot.on("message", function(data) {
             if (data.type !== "message" || data.user !== usuario.id) {

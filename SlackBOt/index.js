@@ -4,9 +4,9 @@ const datos = require('./data/datos.json');
 const config = require('./config/config');
 const respuesta = require('./mensaje');
 const bcrypt = require('bcrypt');
-const express = require('express');
-const session = require('express-session');
-var app = express();
+//const express = require('express');
+//const session = require('express-session');
+//var app = express();
 let user = "";
 let listaUsuarios = [];
 
@@ -14,9 +14,7 @@ var bot = new SlackBot(config.bot);
 
 bot.on("start", function() {
 
-    app.use(session({ secret: '123456', resave: true, saveUninitialized: true }))
-
-    console.log(app.get('saveUninitialized'));
+    //app.use(session({ secret: '123456', resave: true, saveUninitialized: true }))
     let datosUsuarios = bot.getUsers();
     listaUsuarios = datosUsuarios._value.members;
     //console.log(listaUsuarios[0]);
