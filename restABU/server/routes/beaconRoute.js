@@ -1,10 +1,36 @@
 const express = require('express');
 const app = express();
-const beacon = require('../models/beaconModel');
+const Beacon = require('../models/beaconModel');
 
-app.get('/usuario', function(req, res) {
+app.get('/beacon', function (req, res) {
 
-    beacon.exec((err, beacons) => {
+    Beacon.find()
+        .exec((err, beacons) => {
+            if (err) {
+                res.status(400).json({
+                    ok: false,
+                    err
+                })
+            }
+
+            res.json({
+                ok: true,
+                beacons,
+            });
+
+
+        });
+});
+
+app.post('/beacon', function (req, res) {
+
+    let body = req.body;
+    let beacon = new Beacon({
+        nombre: body.nombre,
+        id: body.id,
+        fecha: body.fecha
+    });
+    beacon.save((err, beaconBD) => {
         if (err) {
             res.status(400).json({
                 ok: false,
@@ -14,9 +40,12 @@ app.get('/usuario', function(req, res) {
 
         res.json({
             ok: true,
-            beacons,
+            beaconBD
         });
+    });
 
 
-    })
+
+
 });
+module.exports = app;
