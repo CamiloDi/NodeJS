@@ -12,7 +12,6 @@ app.get('/beacon', function (req, res) {
                     err
                 })
             }
-
             res.json({
                 ok: true,
                 beacons,
@@ -40,7 +39,7 @@ app.post('/beacon', function (req, res) {
 
         res.json({
             ok: true,
-            beaconBD
+            message:`beacon ${beaconBD.nombre} guardado!`
         });
     });
 

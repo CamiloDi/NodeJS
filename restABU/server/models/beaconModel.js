@@ -9,8 +9,6 @@ let beaconSchema = new Schema({
     },
     id: {
         type: String,
-        unique: true,
-        index: true,
         required: [true, 'El ID es necesario']
     },
     fecha: {
