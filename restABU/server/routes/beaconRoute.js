@@ -51,28 +51,39 @@ app.post('/beacon', function(req, res) {
 app.post('/beacons', function(req, res) {
 
     let body = req.body;
-    for (let i = 0; i < body.cantidad; i++) {
+    let beaconsJson = body.beacons;
+    let cantidad = parseInt(body.cantidad);
+    let beaconsGuardados = [];
+
+
+    for (let i = 0; i < cantidad; i++) {
 
         let beacon = new Beacon({
-            nombre: body.beacons[i].nombre,
-            id: body.beacons[i].id,
-            fecha: body.beacons[i].fecha
+            nombre: beaconsJson[i].nombre,
+            id: beaconsJson[i].id,
+            fecha: beaconsJson[i].fecha
         });
-
         beacon.save((err, beaconBD) => {
             if (err) {
                 res.status(400).json({
                     ok: false,
                     err
                 });
+            } else {
+                beaconsGuardados.push(beaconBD);
             }
-            res.json({
-                ok: true,
-                message: `beacon ${beaconBD.nombre} guardado!`
-            });
+            if (beaconsGuardados.length == cantidad) {
 
+                res.json({
+                    ok: true,
+                    message: `Se han Guardado ${beaconsGuardados.length} beacons.`,
+                    beaconsGuardados: beaconsGuardados.length
+                });
+            }
         });
+
     }
+
 });
 
 
